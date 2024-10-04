@@ -1,44 +1,95 @@
 #include "Lexer.hpp"
+#include <iostream>
+#include <cctype>
 
-Lexer::Lexer(const std::string& sourceCode)
-    : sourceCode(sourceCode), currentPosition(0) {}
+Lexer::Lexer(const std::string& source)
+    : source(source), currentPosition(0), currentLine(1) {}
 
-std::vector<Token> Lexer::tokenize() {
-    std::vector<Token> tokens;
-    while (currentPosition < sourceCode.length()) {
-        skipWhitespace();
-        tokens.push_back(nextToken());
+char Lexer::getChar() {
+    if (currentPosition >= source.size()) {
+        return '\0';
     }
-    tokens.emplace_back(Token::Type::EndOfFile, "", currentPosition);
-    return tokens;
+    return source[currentPosition++];
+}
+
+void Lexer::skipWhitespace() {
+    char currentChar = getChar();
+    while (std::isspace(currentChar)) {
+        if (currentChar == '\n') {
+            ++currentLine;
+        }
+        currentChar = getChar();
+    }
+    --currentPosition;
+}
+
+Token Lexer::createIdentifierOrKeyword(const std::string& identifier) {
+    if (keywords.find(identifier) != keywords.end()) {
+        return Token(Token::Type::Keyword, identifier, currentLine);
+    }
+    return Token(Token::Type::Identifier, identifier, currentLine);
+}
+
+Token Lexer::createNumber(const std::string& number) {
+    return Token(Token::Type::Number, number, currentLine);
+}
+
+Token Lexer::createOperator(const char op) {
+    return Token(Token::Type::Operator, std::string(1, op), currentLine);
+}
+
+Token Lexer::createDelimiter(const char delimiter) {
+    return Token(Token::Type::Delimiter, std::string(1, delimiter), currentLine);
 }
 
 Token Lexer::nextToken() {
+    skipWhitespace();
     char currentChar = getChar();
 
-    if (std::isalpha(currentChar)) {
+    if (currentChar == '\0') {
+        return Token(Token::Type::EndOfFile, "", currentLine);
+    }
+
+    if (std::isalpha(currentChar) || currentChar == '_') {
         std::string identifier;
-        while (std::isalnum(currentChar)) {
+        while (std::isalnum(currentChar) || currentChar == '_') {
             identifier += currentChar;
             currentChar = getChar();
         }
         --currentPosition;
-        return Token(Token::Type::Identifier, identifier, currentPosition);
+        return createIdentifierOrKeyword(identifier);
     }
 
-
-}
-
-char Lexer::peekChar() const {
-    return currentPosition < sourceCode.length() ? sourceCode[currentPosition] : '\0';
-}
-
-char Lexer::getChar() {
-    return peekChar() ? sourceCode[currentPosition++] : '\0';
-}
-
-void Lexer::skipWhitespace() {
-    while (std::isspace(peekChar())) {
-        currentPosition++;
+    if (std::isdigit(currentChar)) {
+        std::string number;
+        while (std::isdigit(currentChar)) {
+            number += currentChar;
+            currentChar = getChar();
+        }
+        --currentPosition;
+        return createNumber(number);
     }
+
+    if (std::string("=+-*/%<>&|!").find(currentChar) != std::string::npos) {
+        return createOperator(currentChar);
+    }
+
+    if (std::string(";,:(){}[]").find(currentChar) != std::string::npos) {
+        return createDelimiter(currentChar);
+    }
+
+    return Token(Token::Type::Unknown, std::string(1, currentChar), currentLine);
+}
+
+std::vector<Token> Lexer::tokenize() {
+    std::vector<Token> tokens;
+    Token token = nextToken();
+
+     while (token.getType() != Token::Type::EndOfFile) {
+        tokens.push_back(token);
+        token = nextToken();
+    }
+    tokens.push_back(token); 
+
+    return tokens;
 }
