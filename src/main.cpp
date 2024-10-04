@@ -5,7 +5,6 @@ int main(int argc, char* argv[]) {
         std::cerr << "[-] Error: Invalid number of arguments!" << std::endl;
         return 1;
     }
-
     std::string filePath = argv[1];
     
     FileHandler fileHandler;
