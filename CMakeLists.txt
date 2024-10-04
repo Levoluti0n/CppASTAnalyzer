@@ -13,7 +13,7 @@ set(SOURCES
     src/Lexer.cpp
     src/Parser.cpp
     src/Token.cpp
-    main.cpp
+    src/main.cpp
 )
 
-add_executable(CppASTParser ${SOURCES})
+add_executable(cppASTParser ${SOURCES})
