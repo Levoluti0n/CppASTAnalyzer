@@ -21,3 +21,14 @@ void ASTNode::addChild(std::shared_ptr<ASTNode> child) {
 const std::vector<std::shared_ptr<ASTNode>>& ASTNode::getChildren() const {
     return children;
 }
+
+std::string ASTNode::typeToString(Type type) {
+    switch (type) {
+        case Type::Program: return "Program";
+        case Type::Class: return "Class";
+        case Type::Method: return "Method";
+        case Type::Variable: return "Variable";
+        case Type::Unknown: return "Unknown";
+        default: return "Unknown Type";
+    }
+}
