@@ -9,6 +9,9 @@ std::string FileHandler::readFile(const std::string& filePath) {
         std::cerr << "[-] Error: Unable to open file " << filePath << std::endl;
         exit(EXIT_FAILURE);
     }
+
+    std::cout << "[+] File openned successfuly : " << filePath  << std::endl;
+
     std::stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();

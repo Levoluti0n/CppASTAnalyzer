@@ -1,9 +1,4 @@
-#include <iostream>
-#include "FileHandler.hpp"
-
-#include "Lexer.hpp"
-#include "Parser.hpp"
-#include "ASTTraversal.hpp"
+#include "main.hpp"
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
@@ -15,15 +10,18 @@ int main(int argc, char* argv[]) {
     
     FileHandler fileHandler;
     std::string code = fileHandler.readFile(filePath);
-    
+
     Lexer lexer(code);
     auto tokens = lexer.tokenize();
 
-    // Parser parser(tokens);
-    // std::shared_ptr<ASTNode> root = std::shared_ptr<ASTNode>(parser.parse());
+    Parser parser(tokens);
+    std::shared_ptr<ASTNode> root = std::shared_ptr<ASTNode>(parser.parse());
 
-    // ASTTraversal traversal;
-    // traversal.traverse(root);
+    ASTTraversal traversal;
+    traversal.traverse(root);
+
+    std::string outputFilename = "../output/ast_output";
+    traversal.generateGraph(root, outputFilename);
 
     return 0;
 }

@@ -20,7 +20,9 @@ void Lexer::skipWhitespace() {
         }
         currentChar = getChar();
     }
-    --currentPosition;
+    if (currentChar != '\0') {
+        --currentPosition;
+    }
 }
 
 Token Lexer::createIdentifierOrKeyword(const std::string& identifier) {
